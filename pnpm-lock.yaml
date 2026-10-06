@@ -132,8 +132,8 @@ importers:
   packages/sdk-adapter:
     dependencies:
       torosdk:
-        specifier: file:../../ToroSDK
-        version: file:ToroSDK
+        specifier: ^0.2.0
+        version: 0.2.0
     devDependencies:
       tsup:
         specifier: ^8.0.0
@@ -4517,8 +4517,8 @@ packages:
   toqr@0.1.1:
     resolution: {integrity: sha512-FWAPzCIHZHnrE/5/w9MPk0kK25hSQSH2IKhYh9PyjS3SG/+IEMvlwIHbhz+oF7xl54I+ueZlVnMjyzdSwLmAwA==}
 
-  torosdk@file:ToroSDK:
-    resolution: {directory: ToroSDK, type: directory}
+  torosdk@0.2.0:
+    resolution: {integrity: sha512-ycF1ARJfqpv7PkI1OkuZlt0U6BOKAv/nacF/mBlNc+NZcZtMoUskHJ2J1CwcdlhYYEvZ9CYdlnBZLkGkBXZQNg==}
     engines: {node: '>=14.0.0'}
 
   tree-kill@1.2.2:
@@ -10159,7 +10159,7 @@ snapshots:
 
   toqr@0.1.1: {}
 
-  torosdk@file:ToroSDK:
+  torosdk@0.2.0:
     dependencies:
       axios: 1.20.0
     transitivePeerDependencies:
