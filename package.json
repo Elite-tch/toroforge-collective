@@ -1,0 +1,15 @@
+{
+  "name": "toroforge-react-toolkit",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter dashboard dev",
+    "build": "pnpm --recursive run build",
+    "lint": "pnpm --recursive run lint"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "prettier": "^3",
+    "typescript": "^5"
+  }
+}
