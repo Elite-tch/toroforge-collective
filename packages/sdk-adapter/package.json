@@ -8,7 +8,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "torosdk": "file:../../ToroSDK"
+    "torosdk": "^0.2.0"
   },
   "devDependencies": {
     "tsup": "^8.0.0",
