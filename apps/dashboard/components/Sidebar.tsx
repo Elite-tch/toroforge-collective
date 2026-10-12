@@ -8,7 +8,7 @@ const CORE_ITEMS = [
     title: 'Quickstart & Core',
     links: [
       { name: 'Introduction', href: '/react-web' },
-      { name: '🧪 Live Demo', href: '/react-web/demo' },
+      { name: 'Live Demo', href: '/react-web/demo' },
       { name: 'Installation', href: '/react-web/installation' },
       { name: 'Architecture & Security', href: '/react-web/architecture' },
     ]

@@ -337,7 +337,7 @@ export default function DemoPage() {
   return (
     <div className="animate-in fade-in duration-500 space-y-14 pb-24 max-w-3xl">
       <PageHeader
-        title="🧪 Interactive SDK Demo"
+        title="Interactive SDK Demo"
         description="All sections below are connected to the live Toronet Testnet. Create a wallet, then test every hook — no code needed."
       />
       <WalletSection />
