@@ -86,8 +86,20 @@ const ADVANCED_ITEMS = [
 
 export default function SidebarRN({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
+  const closeDrawer = () => onClose?.();
 
-  useEffect(() => { onClose?.(); }, [pathname]);
+  useEffect(() => { closeDrawer(); }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeDrawer();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden';
@@ -128,7 +140,7 @@ export default function SidebarRN({ isOpen, onClose }: { isOpen?: boolean; onClo
     <div className="flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain custom-scrollbar">
       <div className="flex items-center justify-between px-4 pt-4 pb-2 md:hidden">
         <span className="text-xs font-medium text-[#16A34A]">Navigation</span>
-        <button onClick={onClose} className="text-[#a1a1aa] hover:text-white p-1 rounded" aria-label="Close menu">
+        <button onClick={closeDrawer} className="text-[#a1a1aa] hover:text-white p-1 rounded" aria-label="Close menu">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -158,20 +170,20 @@ export default function SidebarRN({ isOpen, onClose }: { isOpen?: boolean; onClo
 
       {/* Mobile overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 md:hidden" onClick={onClose} aria-hidden />
+        <div className="fixed inset-0 z-50 bg-black/70 md:hidden" onClick={closeDrawer} aria-hidden />
       )}
 
       {/* Mobile drawer */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-[60] h-[100dvh] w-[min(18rem,calc(100vw-2rem))] max-w-72 overflow-hidden border-r border-[#1f1f1f] bg-black transform transition-transform duration-300 ease-in-out md:hidden ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Documentation navigation"
-      >
-        <div className="h-full pt-14">{sidebarContent}</div>
-      </aside>
+      {isOpen && (
+        <aside
+          className="fixed inset-y-0 left-0 z-[60] h-[100dvh] w-[min(18rem,calc(100vw-3rem))] overflow-hidden border-r border-[#1f1f1f] bg-black shadow-2xl md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Documentation navigation"
+        >
+          <div className="h-full">{sidebarContent}</div>
+        </aside>
+      )}
     </>
   );
 }
