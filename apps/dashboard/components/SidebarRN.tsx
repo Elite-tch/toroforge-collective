@@ -125,7 +125,7 @@ export default function SidebarRN({ isOpen, onClose }: { isOpen?: boolean; onClo
   );
 
   const sidebarContent = (
-    <div className="h-full flex flex-col overflow-y-auto custom-scrollbar">
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain custom-scrollbar">
       <div className="flex items-center justify-between px-4 pt-4 pb-2 md:hidden">
         <span className="text-xs font-medium text-[#16A34A]">Navigation</span>
         <button onClick={onClose} className="text-[#a1a1aa] hover:text-white p-1 rounded" aria-label="Close menu">
@@ -158,16 +158,19 @@ export default function SidebarRN({ isOpen, onClose }: { isOpen?: boolean; onClo
 
       {/* Mobile overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 bg-black/70 md:hidden" onClick={onClose} aria-hidden />
+        <div className="fixed inset-0 z-50 bg-black/70 md:hidden" onClick={onClose} aria-hidden />
       )}
 
       {/* Mobile drawer */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-black border-r border-[#1f1f1f] transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed inset-y-0 left-0 z-[60] h-[100dvh] w-[min(18rem,calc(100vw-2rem))] max-w-72 overflow-hidden border-r border-[#1f1f1f] bg-black transform transition-transform duration-300 ease-in-out md:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Documentation navigation"
       >
-        <div className="pt-14 h-full pb-14">{sidebarContent}</div>
+        <div className="h-full pt-14">{sidebarContent}</div>
       </aside>
     </>
   );
