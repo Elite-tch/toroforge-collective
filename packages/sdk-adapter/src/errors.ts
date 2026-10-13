@@ -21,9 +21,12 @@ export const normalizeError = (error: any, operation: string): ToroError => {
   } else if (typeof error === 'string') {
     message = error;
   } else if (error && error.response && error.response.data) {
-    message = error.response.data.error || JSON.stringify(error.response.data);
+    const dataErr = error.response.data.error || error.response.data.message || error.response.data;
+    message = typeof dataErr === 'object' ? JSON.stringify(dataErr) : String(dataErr);
   } else if (error && error.message) {
-    message = error.message;
+    message = typeof error.message === 'object' ? JSON.stringify(error.message) : String(error.message);
+  } else if (error && typeof error === 'object') {
+    message = JSON.stringify(error);
   }
   
   const lowerMsg = message.toLowerCase();

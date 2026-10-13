@@ -6,7 +6,7 @@ import {
   getAddressRole,
   getAddressBalance,
   getBlockById,
-  getTransactionByHash as getTransactionByHashSDK,
+  getTransaction as getTransactionByHashSDK,
   getTransactionReceiptById,
   getEventById,
   getAddressTransactions,

@@ -17,7 +17,13 @@ import { normalizeError } from './errors';
 
 export const getTokenBalance = async (address: string): Promise<string> => {
   try {
-    const rawBal = await sdkGetTokenBalance({ address });
+    const rawBal = await sdkGetTokenBalance({ address }) as any;
+    if (rawBal && typeof rawBal === 'object') {
+      if (rawBal.result === false && rawBal.error) {
+        throw new Error(typeof rawBal.error === 'string' ? rawBal.error : JSON.stringify(rawBal.error));
+      }
+      return (rawBal.balance ?? rawBal.data?.balance ?? '0').toString();
+    }
     return rawBal?.toString() || "0";
   } catch (error) {
     throw normalizeError(error, 'getTokenBalance');
@@ -26,12 +32,23 @@ export const getTokenBalance = async (address: string): Promise<string> => {
 
 export const getTokenMetadata = async (): Promise<{ name: string; symbol: string; decimals: number }> => {
   try {
-    const [name, symbol, decimals] = await Promise.all([
-      sdkGetTokenName(),
-      sdkGetTokenSymbol(),
-      sdkGetTokenDecimal()
+    const [rawName, rawSymbol, rawDecimals] = await Promise.all([
+      sdkGetTokenName() as any,
+      sdkGetTokenSymbol() as any,
+      sdkGetTokenDecimal() as any,
     ]);
-    return { name, symbol, decimals: Number(decimals) };
+
+    for (const res of [rawName, rawSymbol, rawDecimals]) {
+      if (res && typeof res === 'object' && res.result === false && res.error) {
+        throw new Error(typeof res.error === 'string' ? res.error : JSON.stringify(res.error));
+      }
+    }
+
+    const name = typeof rawName === 'object' ? (rawName?.name ?? 'Toro') : (rawName || 'Toro');
+    const symbol = typeof rawSymbol === 'object' ? (rawSymbol?.symbol ?? 'TORO') : (rawSymbol || 'TORO');
+    const decimals = typeof rawDecimals === 'object' ? Number(rawDecimals?.decimal ?? 18) : Number(rawDecimals || 18);
+
+    return { name, symbol, decimals };
   } catch (error) {
     throw normalizeError(error, 'getTokenMetadata');
   }

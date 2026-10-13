@@ -280,49 +280,44 @@ function TNSSection() {
 function TokenSection() {
   const { activeAddress } = useToroContext();
   const [walletInput, setWalletInput] = useState(activeAddress || '');
-  const [tokenInput, setTokenInput] = useState('');
   const [walletTarget, setWalletTarget] = useState<string | null>(null);
 
   const { data, loading, error } = useToroTokenBalance(walletTarget);
 
   return (
     <section className="space-y-4">
-      <SectionTitle num={5} title="Tokens — Contract Inspection" />
+      <SectionTitle num={5} title="Tokens — ToroG Balance" />
       <p className="text-gray-400 text-sm">
-        <HookBadge name="useToroTokenBalance(address)" /> reads token metadata (name, symbol, decimals, balance) directly from a smart contract.
+        <HookBadge name="useToroTokenBalance(address)" /> reads the native <strong className="text-white">ToroG</strong> token balance plus its on-chain metadata (name, symbol, decimals) for any wallet address on Testnet.
       </p>
       <Card>
-        <form onSubmit={(e) => { e.preventDefault(); setWalletTarget(walletInput); }} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <form onSubmit={(e) => { e.preventDefault(); setWalletTarget(walletInput); }} className="space-y-4 mb-5">
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Token Contract (0x…)</label>
-            <input value={tokenInput} onChange={(e) => setTokenInput(e.target.value)} placeholder="0x…" className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-[#16A34A] transition-colors" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Wallet Address (0x…)</label>
+            <label className="block text-xs text-gray-400 mb-1.5">Wallet Address to check ToroG balance (0x…)</label>
             <input value={walletInput} onChange={(e) => setWalletInput(e.target.value)} placeholder="0x…" className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-gray-600 focus:outline-none focus:border-[#16A34A] transition-colors" />
           </div>
-          <div className="md:col-span-2">
+          <div>
             <button type="submit" disabled={!walletInput || loading} className="w-full py-2.5 bg-[#16A34A] hover:bg-[#15803d] disabled:opacity-40 text-white text-sm font-semibold rounded-lg transition-colors">
-              {loading ? 'Inspecting Contract…' : 'Inspect Token'}
+              {loading ? 'Fetching Balance…' : 'Check ToroG Balance'}
             </button>
           </div>
         </form>
 
         <div className="min-h-[100px] flex items-center justify-center">
-          {!walletTarget && <p className="text-gray-600 text-sm">Enter addresses above to inspect a token.</p>}
+          {!walletTarget && <p className="text-gray-600 text-sm">Enter a wallet address above to check its ToroG balance.</p>}
           {loading && <p className="text-[#16A34A] animate-pulse text-sm">Reading Smart Contract…</p>}
-          {error && <p className="text-red-400 text-sm">Error: {error.message}</p>}
+          {error && <p className="text-red-400 text-sm">Error: {typeof error.message === 'string' ? error.message : JSON.stringify(error.message)}</p>}
           {data && !loading && (
             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-[#16A34A]/10 border border-[#16A34A]/30 rounded-xl p-6 text-center">
                 <p className="text-xs text-[#16A34A] mb-2">Balance</p>
-                <p className="text-4xl font-black text-white">{data.balance}</p>
-                <p className="text-sm text-gray-400 mt-1">{data.symbol}</p>
+                <p className="text-4xl font-black text-white">{typeof data.balance === 'object' ? JSON.stringify(data.balance) : String(data.balance ?? '0')}</p>
+                <p className="text-sm text-gray-400 mt-1">{typeof data.symbol === 'object' ? JSON.stringify(data.symbol) : String(data.symbol ?? 'TORO')}</p>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-3">
-                <div><p className="text-xs text-gray-500">Token Name</p><p className="text-white font-medium">{data.name}</p></div>
-                <div><p className="text-xs text-gray-500">Symbol</p><p className="text-white font-mono">{data.symbol}</p></div>
-                <div><p className="text-xs text-gray-500">Decimals</p><p className="text-white font-mono">{data.decimals}</p></div>
+                <div><p className="text-xs text-gray-500">Token Name</p><p className="text-white font-medium">{typeof data.name === 'object' ? JSON.stringify(data.name) : String(data.name ?? 'Toro')}</p></div>
+                <div><p className="text-xs text-gray-500">Symbol</p><p className="text-white font-mono">{typeof data.symbol === 'object' ? JSON.stringify(data.symbol) : String(data.symbol ?? 'TORO')}</p></div>
+                <div><p className="text-xs text-gray-500">Decimals</p><p className="text-white font-mono">{typeof data.decimals === 'object' ? JSON.stringify(data.decimals) : String(data.decimals ?? '18')}</p></div>
               </div>
             </div>
           )}

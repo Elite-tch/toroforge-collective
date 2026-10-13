@@ -11,8 +11,11 @@ export const sendTransaction = async (currency: string, senderAddr: string, send
 
 export const getTransactions = async (address: string, count: number = 20): Promise<any> => {
   try {
-    return await getAddressTransactions(address, count);
+    const result = await getAddressTransactions(address, count) as any;
+    // The SDK returns { result: true, transactions: [...] } — unwrap to the array
+    return Array.isArray(result) ? result : (result?.transactions ?? result?.txs ?? []);
   } catch (error) {
     throw normalizeError(error, 'getTransactions');
   }
 };
+

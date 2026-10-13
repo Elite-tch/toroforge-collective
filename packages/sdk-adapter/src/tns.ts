@@ -3,7 +3,9 @@ import { normalizeError } from './errors';
 
 export const resolveTNSName = async (name: string): Promise<string | null> => {
   try {
-    const address = await sdkGetAddr({ name });
+    const response = await sdkGetAddr({ name }) as any;
+    // The SDK returns the full response.data object: { addr: "0x...", result: true }
+    const address = response?.addr || response?.address || null;
     return address || null;
   } catch (error) {
     throw normalizeError(error, 'resolveTNSName');
@@ -12,12 +14,15 @@ export const resolveTNSName = async (name: string): Promise<string | null> => {
 
 export const lookupTNSAddress = async (address: string): Promise<string | null> => {
   try {
-    const name = await sdkGetName({ address });
+    const response = await sdkGetName({ address }) as any;
+    // The SDK returns the full response.data object: { name: "alice", result: true }
+    const name = response?.name || response?.username || null;
     return name || null;
   } catch (error) {
     throw normalizeError(error, 'lookupTNSAddress');
   }
 };
+
 
 export const updateTNSName = async (address: string, password: string, username: string): Promise<any> => {
   try {

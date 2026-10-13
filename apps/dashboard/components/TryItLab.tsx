@@ -8,7 +8,7 @@ interface TryItLabProps {
   codeSnippet: string;
 }
 
-export function TryItLab({ title, description, codeSnippet }: TryItLabProps) {
+export function TryItLab({ title, description, children, codeSnippet }: TryItLabProps) {
   return (
     <div className="mt-12 rounded-2xl border border-white/10 overflow-hidden bg-[#000000] shadow-2xl">
       <div className="border-b border-white/10 bg-[#080808] p-4 flex items-center justify-between">
@@ -27,6 +27,11 @@ export function TryItLab({ title, description, codeSnippet }: TryItLabProps) {
           </span>
         </div>
       </div>
+      {children && (
+        <div className="border-b border-white/10 p-6 bg-[#050505]">
+          {children}
+        </div>
+      )}
       <div className="p-6 bg-[#000000]">
         <CodeBlock code={codeSnippet} language="tsx" />
       </div>

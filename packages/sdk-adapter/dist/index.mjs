@@ -30,9 +30,12 @@ var normalizeError = (error, operation) => {
   } else if (typeof error === "string") {
     message = error;
   } else if (error && error.response && error.response.data) {
-    message = error.response.data.error || JSON.stringify(error.response.data);
+    const dataErr = error.response.data.error || error.response.data.message || error.response.data;
+    message = typeof dataErr === "object" ? JSON.stringify(dataErr) : String(dataErr);
   } else if (error && error.message) {
-    message = error.message;
+    message = typeof error.message === "object" ? JSON.stringify(error.message) : String(error.message);
+  } else if (error && typeof error === "object") {
+    message = JSON.stringify(error);
   }
   const lowerMsg = message.toLowerCase();
   if (lowerMsg.includes("insufficient")) {
@@ -166,7 +169,8 @@ var getBalance = async (address) => {
       ngnBalance: rawBalance.ngnBalance?.toString() || "0",
       usdBalance: rawBalance.usdBalance?.toString() || "0",
       toroGBalance: rawBalance.toroGBalance?.toString() || "0",
-      kshBalance: rawBalance.kshBalance?.toString() || "0"
+      // bal_ksh is not yet in the compiled torosdk; fall back gracefully
+      kshBalance: rawBalance.kshBalance?.toString() || rawBalance.bal_ksh?.toString() || "0"
     };
   } catch (error) {
     throw normalizeError(error, "getBalance");
@@ -177,7 +181,8 @@ var getBalance = async (address) => {
 import { getName as sdkGetName, getAddr as sdkGetAddr, updateName as sdkUpdateName, deleteName as sdkDeleteName } from "torosdk";
 var resolveTNSName = async (name) => {
   try {
-    const address = await sdkGetAddr({ name });
+    const response = await sdkGetAddr({ name });
+    const address = response?.addr || response?.address || null;
     return address || null;
   } catch (error) {
     throw normalizeError(error, "resolveTNSName");
@@ -185,7 +190,8 @@ var resolveTNSName = async (name) => {
 };
 var lookupTNSAddress = async (address) => {
   try {
-    const name = await sdkGetName({ address });
+    const response = await sdkGetName({ address });
+    const name = response?.name || response?.username || null;
     return name || null;
   } catch (error) {
     throw normalizeError(error, "lookupTNSAddress");
@@ -227,6 +233,12 @@ import {
 var getTokenBalance = async (address) => {
   try {
     const rawBal = await sdkGetTokenBalance({ address });
+    if (rawBal && typeof rawBal === "object") {
+      if (rawBal.result === false && rawBal.error) {
+        throw new Error(typeof rawBal.error === "string" ? rawBal.error : JSON.stringify(rawBal.error));
+      }
+      return (rawBal.balance ?? rawBal.data?.balance ?? "0").toString();
+    }
     return rawBal?.toString() || "0";
   } catch (error) {
     throw normalizeError(error, "getTokenBalance");
@@ -234,12 +246,20 @@ var getTokenBalance = async (address) => {
 };
 var getTokenMetadata = async () => {
   try {
-    const [name, symbol, decimals] = await Promise.all([
+    const [rawName, rawSymbol, rawDecimals] = await Promise.all([
       sdkGetTokenName(),
       sdkGetTokenSymbol(),
       sdkGetTokenDecimal()
     ]);
-    return { name, symbol, decimals: Number(decimals) };
+    for (const res of [rawName, rawSymbol, rawDecimals]) {
+      if (res && typeof res === "object" && res.result === false && res.error) {
+        throw new Error(typeof res.error === "string" ? res.error : JSON.stringify(res.error));
+      }
+    }
+    const name = typeof rawName === "object" ? rawName?.name ?? "Toro" : rawName || "Toro";
+    const symbol = typeof rawSymbol === "object" ? rawSymbol?.symbol ?? "TORO" : rawSymbol || "TORO";
+    const decimals = typeof rawDecimals === "object" ? Number(rawDecimals?.decimal ?? 18) : Number(rawDecimals || 18);
+    return { name, symbol, decimals };
   } catch (error) {
     throw normalizeError(error, "getTokenMetadata");
   }
@@ -312,7 +332,8 @@ var sendTransaction = async (currency, senderAddr, senderPwd, receiverAddr, amou
 };
 var getTransactions = async (address, count = 20) => {
   try {
-    return await getAddressTransactions(address, count);
+    const result = await getAddressTransactions(address, count);
+    return Array.isArray(result) ? result : result?.transactions ?? result?.txs ?? [];
   } catch (error) {
     throw normalizeError(error, "getTransactions");
   }
@@ -327,7 +348,7 @@ import {
   getAddressRole,
   getAddressBalance,
   getBlockById,
-  getTransactionByHash as getTransactionByHashSDK,
+  getTransaction as getTransactionByHashSDK,
   getTransactionReceiptById,
   getEventById,
   getAddressTransactions as getAddressTransactions2,
